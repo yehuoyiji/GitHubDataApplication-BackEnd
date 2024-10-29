@@ -1,9 +1,14 @@
 package com.yehuo.githubdatabackend.controller;
 
 import cn.hutool.http.HttpResponse;
+import com.yehuo.githubdatabackend.entity.ResponseResult;
+import com.yehuo.githubdatabackend.enums.AppHttpCodeEnum;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import cn.hutool.http.HttpRequest;
+
+import java.util.Objects;
 
 
 @RestController
@@ -14,8 +19,11 @@ public class SearchController {
     private String apiToken;
 
     @GetMapping("/getPersonalInformation/{githubName}")
-    public String getPersonalInformation(@PathVariable("githubName") String githubName) {
-        return PersonalInformation(githubName);
+    public ResponseResult getPersonalInformation(@PathVariable("githubName") String githubName) {
+        if (!StringUtils.hasText(githubName) || Objects.isNull(githubName)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.USERNAME_NOT_NULL);
+        }
+        return ResponseResult.okResult(PersonalInformation(githubName));
     }
 
     public String PersonalInformation(String githubName) {
