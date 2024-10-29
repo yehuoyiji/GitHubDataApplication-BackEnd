@@ -2,4 +2,8 @@
 server:
   port: 7899
 github:
-  apiToken: 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
+  apiToken: ENC(ftsaQe3qHWmudFx3qWWCm1Re57SX3Rlr8MjHWVMoMV9deAT8shWJTrO8haYxy+r/mapcr6V/dSxb4lgXomrRrF7Siah5CZvDrW4KNwBD/B48b/vUkXF2Hwsj6jfKerqpKn5mE/KyAjsiANkalwBJJDVsHoG3Lw4Sl30PCgMqI2o=)
+jasypt:
+  encryptor:
+    password: secret-key
+
