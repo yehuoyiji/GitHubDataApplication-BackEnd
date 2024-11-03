@@ -4,14 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class LocationDto {
+public class SearchConditionVo {
 
-    private String Country;
+    private Long total_count;
 
-    private Long PageSize;
-
-    private Long PageNum;
+    private List<PersonVo> items;
 }
