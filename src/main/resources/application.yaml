@@ -1,6 +1,13 @@
 
 server:
   port: 7899
+spring:
+  redis:
+    database: 1
+    host: localhost
+    port: 6379
+    timeout: 5000
+    password: 123456
 github:
   apiToken: ENC(ftsaQe3qHWmudFx3qWWCm1Re57SX3Rlr8MjHWVMoMV9deAT8shWJTrO8haYxy+r/mapcr6V/dSxb4lgXomrRrF7Siah5CZvDrW4KNwBD/B48b/vUkXF2Hwsj6jfKerqpKn5mE/KyAjsiANkalwBJJDVsHoG3Lw4Sl30PCgMqI2o=)
 jasypt:

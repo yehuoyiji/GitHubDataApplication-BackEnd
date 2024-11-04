@@ -9,17 +9,20 @@ import com.yehuo.githubdatabackend.entity.ResponseResult;
 import com.yehuo.githubdatabackend.entity.SearchConditionDto;
 import com.yehuo.githubdatabackend.entity.SearchConditionVo;
 import com.yehuo.githubdatabackend.enums.AppHttpCodeEnum;
-import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.StopWatch;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import cn.hutool.http.HttpRequest;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 
@@ -30,21 +33,37 @@ public class SearchController {
     @Value("${github.apiToken}")
     private String apiToken;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     @GetMapping("/getPersonalInformation/{githubName}")
     public ResponseResult getPersonalInformation(@PathVariable("githubName") String githubName) {
         if (!StringUtils.hasText(githubName) || Objects.isNull(githubName)) {
             return ResponseResult.errorResult(AppHttpCodeEnum.USERNAME_NOT_NULL);
         }
-        return PersonalInformation(githubName);
+        PersonVo personVo = (PersonVo) redisTemplate.opsForValue().get(githubName);
+        if (Objects.isNull(personVo)) {
+            return PersonalInformation(githubName);
+        }
+        return ResponseResult.okResult(personVo);
     }
 
-    @GetMapping("/getAllUserInformation")
+    @PostMapping("/getAllUserInformation")
     public ResponseResult getAllUserInformation(@RequestBody SearchConditionDto searchConditionDto) {
-        return GitHubLocationQuery(searchConditionDto);
+        System.out.println(searchConditionDto.toString());
+        Object res = redisTemplate.opsForValue().get(searchConditionDto.toString());
+        if (Objects.isNull(res)) {
+            return GitHubLocationQuery(searchConditionDto);
+        } else {
+            return ResponseResult.okResult(res);
+        }
+//        return GitHubLocationQuery(searchConditionDto);
     }
 
 
     public ResponseResult PersonalInformation(String githubName) {
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         HttpRequest request = HttpRequest.get("https://api.github.com/users/" + githubName)
                 .header("Accept", "application/vnd.github+json")
                 .header("Authorization", "Bearer " + apiToken)
@@ -52,9 +71,13 @@ public class SearchController {
         HttpResponse execute = request.execute();
         int status = execute.getStatus();
         if (status != 200) {
-            return ResponseResult.errorResult(404, "请输入正确的用户名");
+            return ResponseResult.errorResult(404, execute.body());
         }else {
             PersonVo personVo = JSONUtil.toBean(execute.body(), PersonVo.class);
+            redisTemplate.opsForValue().set(githubName, personVo, 5, TimeUnit.MINUTES);
+
+            stopWatch.stop();
+            System.out.println("耗时：" + stopWatch.getLastTaskTimeMillis());
             return ResponseResult.okResult(personVo);
         }
     }
@@ -71,7 +94,7 @@ public class SearchController {
         HttpResponse execute = request.execute();
         int status = execute.getStatus();
         if (status != 200) {
-            return ResponseResult.errorResult(404, "请输入正确的用户名");
+            return ResponseResult.errorResult(404, execute.body());
         }else {
             searchConditionVo = JSONUtil.toBean(execute.body(), SearchConditionVo.class);
         }
@@ -129,6 +152,7 @@ public class SearchController {
         }
         CompletableFuture.allOf(endFutures).join();
         stopWatch.stop();
+        redisTemplate.opsForValue().set(searchConditionDto.toString(), result, 10, TimeUnit.MINUTES);
         System.out.println("耗时：" + stopWatch.getLastTaskTimeMillis());
         return ResponseResult.okResult(result);
 
