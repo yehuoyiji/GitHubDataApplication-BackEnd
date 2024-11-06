@@ -4,10 +4,7 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.yehuo.githubdatabackend.entity.PersonVo;
-import com.yehuo.githubdatabackend.entity.ResponseResult;
-import com.yehuo.githubdatabackend.entity.SearchConditionDto;
-import com.yehuo.githubdatabackend.entity.SearchConditionVo;
+import com.yehuo.githubdatabackend.entity.*;
 import com.yehuo.githubdatabackend.enums.AppHttpCodeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -57,7 +54,7 @@ public class SearchController {
         } else {
             return ResponseResult.okResult(res);
         }
-//        return GitHubLocationQuery(searchConditionDto);
+
     }
 
 
@@ -82,6 +79,21 @@ public class SearchController {
         }
     }
 
+    @GetMapping("/getRepositoryByName/{userName}")
+    public List<Repository> getRepositoryByName(@PathVariable("userName")String userName) {
+        HttpRequest request = HttpRequest.get("https://api.github.com/users/" + userName + "/repos")
+                .header("Accept", "application/vnd.github+json")
+                .header("Authorization", "Bearer " + apiToken)
+                .header("X-GitHub-Api-Version", "2022-11-28");
+        HttpResponse execute = request.execute();
+        int status = execute.getStatus();
+        if (status != 200) {
+            return new ArrayList<Repository>();
+        }else {
+            List<Repository> result = JSONUtil.toList(execute.body(), Repository.class);
+            return result;
+        }
+    }
     public ResponseResult GitHubLocationQuery(SearchConditionDto searchConditionDto) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
