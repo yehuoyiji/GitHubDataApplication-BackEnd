@@ -78,4 +78,6 @@ public class PersonVo implements Serializable {
     String created_at;
 
     String updated_dt;
+
+    Double score;
 }

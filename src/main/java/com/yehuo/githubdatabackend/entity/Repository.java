@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -29,4 +30,14 @@ public class Repository implements Serializable {
 
     // 主题
     private List<String> topics;
+
+    // 创建时间
+    LocalDate createdAt;
+
+    // 更新时间
+    LocalDate updatedAt;
+
+    // 是否fork
+    boolean isFork;
+
 }

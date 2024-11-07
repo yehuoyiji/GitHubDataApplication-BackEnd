@@ -13,4 +13,10 @@ github:
 jasypt:
   encryptor:
     password: secret-key
+xunfei:
+  client:
+    appid: 19fa6c4d
+    apiSecret: MzY3ODgwMmIyZjc5MTMzOWE0MzNiZDZm
+    apiKey: f2b2a8c25f78697fc8aeed1fcaa63f74
+
 
