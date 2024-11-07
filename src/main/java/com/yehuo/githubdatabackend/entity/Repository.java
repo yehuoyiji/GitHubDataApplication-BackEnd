@@ -40,4 +40,6 @@ public class Repository implements Serializable {
     // 是否fork
     boolean isFork;
 
+    // 最终分数
+    Double score;
 }

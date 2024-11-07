@@ -1,13 +1,11 @@
 package com.yehuo.githubdatabackend.controller;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.yehuo.githubdatabackend.entity.*;
 import com.yehuo.githubdatabackend.enums.AppHttpCodeEnum;
-import com.yehuo.githubdatabackend.utils.ConfidenceScoreCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -16,7 +14,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import cn.hutool.http.HttpRequest;
 
-import javax.annotation.Resource;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -83,7 +80,7 @@ public class SearchController {
     }
 
     @GetMapping("/getRepositoryByName/{userName}")
-    public List<Repository> getRepositoryByName(@PathVariable("userName")String userName) {
+    public List getRepositoryByName(@PathVariable("userName")String userName) {
         HttpRequest request = HttpRequest.get("https://api.github.com/users/" + userName + "/repos")
                 .header("Accept", "application/vnd.github+json")
                 .header("Authorization", "Bearer " + apiToken)
@@ -94,7 +91,12 @@ public class SearchController {
             return new ArrayList<Repository>();
         }else {
             List<Repository> result = JSONUtil.toList(execute.body(), Repository.class);
-            return result;
+            double score = calculateDeveloperScore(result);
+            List res = new ArrayList();
+            res.add(result);
+            res.add(score);
+            return res;
+
         }
     }
 
@@ -259,7 +261,7 @@ public class SearchController {
         double weightedScore = score * confidenceLevel;
 
         // 将分数缩放到百分制 (假设最高可能分数1000为100分)
-        double percentageScore = Math.min((weightedScore / 1000) * 100, 100);
+        double percentageScore = Math.min((weightedScore / 500) * 100, 100);
 
         // 更新置信度，假设每次计算置信度略微增加（模拟模型对分数越来越自信）
         updateConfidenceLevel();
