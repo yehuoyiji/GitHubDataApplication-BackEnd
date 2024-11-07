@@ -27,3 +27,7 @@
    - 主要通过判断仓库是否是原创仓库，仓库活跃度，语言多样性，以及描述中的关键字来进行基础分数计算后，通过置信度以及第一次计算分数实现二次计算得到最终分数。
 4. **接口限流及数据缓存模块**
    - 通过编写令牌桶限流算法并注册拦截器实现接口限流，通过Redis缓存机制，有效防止热点数据访问过高，降低接口压力，提高用户体验。     
+
+# 演示视频Demo
+[演示视频Demo位置](https://github.com/yehuoyiji/GitHubDataApplication-BackEnd/blob/master/src/main/resources/static/%E6%BC%94%E7%A4%BADemo.mp4)
+> 提示：需要点击view raw下载视频才能观看
